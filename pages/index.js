@@ -4,12 +4,18 @@ import Stack from '@mui/material/Stack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Router from 'next/router'
 import Paper from '@mui/material/Paper';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
-
+import ListItemButton from '@mui/material/ListItemButton';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
 import Image from 'next/image';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import DraftsIcon from '@mui/icons-material/Drafts';
 import * as React from 'react';
 import Badge from '@mui/material/Badge';
 import MailIcon from '@mui/icons-material/Mail';
@@ -41,8 +47,26 @@ import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 var moment = require('moment');
 import { collection, deleteDoc, doc, DocumentData, getDocs, limit, query, QueryDocumentSnapshot, updateDoc, where  ,getDoc} from "@firebase/firestore";
-export default function Home() {
+import QuiltedImageList from "./photoGallary";
+import { useRouter } from 'next/router'
+import SingleTestForReport from "./singleTestForReport";
 
+export default function Home() {
+  const router = useRouter()
+  var reportID = router.query.watch;
+  if(reportID){
+    console.log("show report")
+  }else{
+    console.log("Not report")
+  }
+  function srcset(image, size, rows = 1, cols = 1) {
+    return {
+      src: `${image}?w=${size * cols}&h=${size * rows}&fit=crop&auto=format`,
+      srcSet: `${image}?w=${size * cols}&h=${
+          size * rows
+      }&fit=crop&auto=format&dpr=2 2x`,
+    };
+  }
   var firestore;
   try{
     initializeApp({
@@ -63,11 +87,13 @@ export default function Home() {
 
   const [downloadedreprot,setTodos] = useState({});
   const [items,setItems] = useState([]);
+  const [attachments,setAttachments] = useState([]);
   const [loading,setLoading] = useState(true);
 
   useEffect( () => {
     getTodos();
     getReportItems();
+
     setTimeout( () => {
     //  setLoading(false);
     },2000)
@@ -79,8 +105,9 @@ export default function Home() {
 
 
 
-  const todosCollection = doc(firestore,'reports/' + '2pgwUADuWJdbxQ8elYed');
-  const reportItemCollection = collection(firestore,'reports/' + '2pgwUADuWJdbxQ8elYed'+"/items");
+
+  const todosCollection = doc(firestore,'reports/' + 'zkBlCkfO0mb06Sd4UyOF');
+  const reportItemCollection = collection(firestore,'reports/' + 'zkBlCkfO0mb06Sd4UyOF'+"/items");
 
   const getTodos = async () => {
   // const todosQuery = query(reportItemCollection);
@@ -96,6 +123,26 @@ export default function Home() {
    // console.log(result.length);
      setTodos(dd.data());
   };
+  const getAttachmentItems = async (id) => {
+    const reportAttachments = collection(firestore,'reports/' + '2pgwUADuWJdbxQ8elYed'+"/items/"+id+"/attachment");
+    const attachmentQuery = query(reportAttachments);
+
+    const querySnapshot = await getDocs(todosQuery);
+
+    // map through todos adding them to an array
+
+    var result= [];
+    querySnapshot.forEach((snapshot) => {
+      if(snapshot.get("type")=="photo")
+      result.push(snapshot.data());
+
+    });
+
+    setAttachments(result);
+    console.log(result);
+    setLoading(false);
+
+  };
   const getReportItems = async () => {
     const todosQuery = query(reportItemCollection);
 
@@ -105,7 +152,7 @@ export default function Home() {
 
      var result= [];
     querySnapshot.forEach((snapshot) => {
-     result.push(snapshot.data());
+     result.push(snapshot);
 
     });
 
@@ -149,6 +196,39 @@ function convertDate(da) {
   return  <label>{result}</label>;
 
 }
+  function convertmilisToMinute(da) {
+    var dateTime = new Date(da);
+    var result = moment(dateTime).format('mm:ss');
+    return  result;
+
+  }
+function testDataTile(dataone, datatwo) {
+    return (<Box  sx={{
+      mx: 'auto',
+      bgcolor: "#ffff",
+      color: '#007913',
+      padding:1,
+      // width:  '80%',
+      // p: 1,
+      // m: 1,
+      borderRadius: 0,
+      margin:0,
+      textAlign: 'center',
+    }}
+    >
+      <Stack sx={{ width: '100%',height:10 }} direction="row" justifyContent="space-between"sx={{paddingLeft:2,paddingRight:2,paddingTop:1,paddingBottom:1}}>
+
+
+        <Typography variant="p" component="p"   style={{color:"#868686"}} >
+          {dataone}
+        </Typography>
+
+        <label>{datatwo} </label>
+
+      </Stack>
+    </Box>);
+
+}
   return (
     <div className="container">
       <Head>
@@ -161,192 +241,7 @@ function convertDate(da) {
 
 
 
-        <Paper variant="outlined"  >
 
-
-            <Stack direction="row"
-                   justifyContent="space-between"
-
-                   spacing={10} sx={{paddingLeft:5}}>
-
-              <p >Report Details </p>
-              <Stack direction="row"
-                     justifyContent="space-evenly"
-                     alignItems="center"
-                     spacing={1}>
-                <IconButton aria-label="delete">
-                  <DeleteIcon />
-                </IconButton>
-                <Badge badgeContent={4} color="secondary">
-                  <PictureAsPdfIcon color="action" />
-                </Badge>
-                <IconButton color="secondary" aria-label="add an alarm">
-                  <DownloadIcon />
-                </IconButton>
-                <IconButton color="primary" aria-label="add to shopping cart">
-                  <CancelPresentationIcon />
-                </IconButton>
-              </Stack>
-            </Stack>
-          <Divider />
-          <img className={styles.photoLogo}  src="https://st2.depositphotos.com/1768926/7866/v/600/depositphotos_78666192-stock-illustration-a-logo-sample-logo-for.jpg"/>
-
-
-          <List>
-            <ListItemText className={styles.centertext} primary="Rob Company" />
-            <ListItemText className={styles.centertext} primary="demo@email.com" />
-            <ListItemText className={styles.centertext} primary="744444444" />
-
-          </List>
-
-
-
-          <Grid container direction="row" spacing={0} columns={0}
-                justifyContent="space-between"
-                alignItems="baseline"  style={{
-            padding: '30px',
-          }}>
-            <Grid item xs={6}>
-                <h6 className={styles.primaryColortext}>Report Title &rarr;</h6>
-                <h4>{downloadedreprot.field_1}</h4>
-            </Grid>
-
-
-            <Grid item xs={6}>
-                <h6 className={styles.primaryColortext}>Site Name &rarr;</h6>
-                <h4>{downloadedreprot.field_9}</h4>
-            </Grid>
-            <Grid item xs={6}>
-                <h6 className={styles.primaryColortext}>Report Date &rarr;</h6>
-              <h4>{downloadedreprot.created_at}</h4>
-            </Grid>
-            <Grid item xs={6}>
-                <h6 className={styles.primaryColortext}>Site Address &rarr;</h6>
-                <h4>{downloadedreprot.field_5}</h4>
-            </Grid>
-            <Grid item xs={6}>
-              <h6 className={styles.primaryColortext}>Compiled By &rarr;</h6>
-              <h4>Rob Hi.</h4>
-            </Grid>
-
-            <Grid item xs={6}>
-              <h6 className={styles.primaryColortext}>Customer Contact Name&rarr;</h6>
-              <h4>{downloadedreprot.field_6}</h4>
-            </Grid>
-
-
-
-            <Grid item xs={6}>
-              <h6 className={styles.primaryColortext}>Customer Company Name&rarr;</h6>
-              <h4>{downloadedreprot.field_2}</h4>
-            </Grid>
-
-
-            <Grid item xs={6}>
-              <h6 className={styles.primaryColortext}>Customer Company Tel&rarr;</h6>
-              <h4>{downloadedreprot.field_7}</h4>
-            </Grid>
-
-            <Grid item xs={6}>
-              <h6 className={styles.primaryColortext}>Customer Address&rarr;</h6>
-              <h4>{downloadedreprot.field_10}.</h4>
-            </Grid>
-
-            <Grid item xs={6}>
-              <h6 className={styles.primaryColortext}>Customer Contact Email&rarr;</h6>
-              <h4>{downloadedreprot.field_8}</h4>
-            </Grid>
-
-
-
-            <Grid item xs={8}>
-              <h6 className={styles.primaryColortext}>Test Conclusion&rarr;</h6>
-              <h4>{downloadedreprot.field_11}</h4>
-            </Grid>
-
-          </Grid>
-
-          <List sx={{ width: '100%', bgcolor: 'background.paper', }}>
-             {items.map((value) => (
-
-
-                 <List>
-                   <Divider />
-                   <h3 sx={{fontsize:20}}  className={styles.centertextPrimaryColor}>{value.data.name}</h3>
-                   <Divider />
-                   <Box
-                       sx={{
-                         mx: 'auto',
-                         bgcolor: "#52BE80",
-                         color: '#fff',
-                         padding:1,
-                         // width:  '80%',
-                         // p: 1,
-                         // m: 1,
-                          borderRadius: 0,
-                         margin:1,
-                         textAlign: 'center',
-                       }}
-                   >
-                     {value.data.didPassed?"Test Passed":"Test Failed"}
-                   </Box>
-
-
-
-                   <Card elevation={0} sx={{ maxWidth: '100%' }}>
-
-                     <CardMedia
-                         component="img"
-
-                         image={`data:image/jpeg;base64,${value.data.graphImage}`}
-                         alt="Paella dish"
-                     />
-                     <CardContent>
-
-                     </CardContent>
-
-
-                   </Card>
-                   <List sx={{ paddingLeft:0,paddingRight:0}}>
-
-                     <Stack sx={{ width: '80%',  paddingLeft:4,paddingRight:4 }} direction="row" justifyContent="space-between"sx={{paddingLeft:0}}>
-                       <label >Test Title</label>
-                       <label>{value.data.name}</label>
-                     </Stack>
-                     <Divider/>
-                     <Stack sx={{ width: '100%', }} direction="row" justifyContent="space-between"sx={{paddingLeft:0}}>
-                       <label >Test Note</label>
-                       <label>{value.data.note}</label>
-                     </Stack>
-                     <Divider/>
-                     {/*<h6   className={styles.primaryColortext}>Test Title</h6>*/}
-                     {/*<h5>{value.data.name}</h5>*/}
-                     {/*<h6 className={styles.primaryColortext}>Test Note</h6>*/}
-                     {/*<h5>{value.data.note}</h5>*/}
-
-
-                     <Stack sx={{ width: '100%', }} direction="row" justifyContent="space-between"sx={{paddingLeft:0}}>
-                       <label >Date & Time</label>
-
-                       <label>{ convertDate(value.data.time)}</label>
-
-                     </Stack>
-                     <Divider/>
-                     <Stack sx={{ width: '100%', }} direction="row" justifyContent="space-between"sx={{paddingLeft:0}}>
-                       <label >Target Value</label>
-
-                       <label>{value.data.targetLoad} {value.data.loadMode}</label>
-
-                     </Stack>
-
-                     <Divider/>
-
-                   </List>
-
-                 </List> ))}
-          </List>
-
-        </Paper>
       </Box>
 
 
@@ -356,8 +251,8 @@ function convertDate(da) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className="logo" />
+          Powered by{' '}Staht Connect
+          {/*<img src="/vercel.svg" alt="Vercel" className="logo" />*/}
         </a>
       </footer>
 
@@ -370,6 +265,7 @@ function convertDate(da) {
           justify-content: center;
           align-items: center;
         }
+  
 
         main {
           padding: 5rem 0;
@@ -388,7 +284,13 @@ function convertDate(da) {
           justify-content: center;
           align-items: center;
         }
-
+        .teststacktile{
+            mx: 'auto'; bgcolor: "#ffff"; color: green; padding:1px;
+        
+            borderRadius: 0;
+            margin:0;
+            textAlign: 'center';
+        }
         footer img {
           margin-left: 0.5rem;
         }
