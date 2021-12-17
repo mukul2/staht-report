@@ -50,55 +50,69 @@ export default function Report() {
     const [reportResourceId,setreportResourceId] = useState({});
     const [items,setItems] = useState([]);
 
-    try{
-        initializeApp({
-            apiKey: "AIzaSyCKb4AFXlNrrULmmfnwQgt4yjo2LqEniNY",
-            authDomain: "staht-connect-322113.firebaseapp.com",
-            projectId: "staht-connect-322113",
-            storageBucket: "staht-connect-322113.appspot.com",
-            messagingSenderId: "1062957635061",
-            appId: "1:1062957635061:web:ae189f34def46aa57d3cbc",
-            measurementId: "G-9389CBET47"
-        })
-        // initializeApp({
-        //     apiKey: "AIzaSyCKb4AFXlNrrULmmfnwQgt4yjo2LqEniNY",
-        //     authDomain: "staht-connect-322113.firebaseapp.com",
-        //     projectId: "staht-connect-322113",
-        //     storageBucket: "staht-connect-322113.appspot.com",
-        //     messagingSenderId: "1062957635061",
-        //     appId: "1:1062957635061:web:ae189f34def46aa57d3cbc",
-        //     measurementId: "G-9389CBET47"
-        // });
 
-
-
-        firestore = getFirestore();
-    }catch (e) {
-        console.log(e);
-        firestore = getFirestore();
-    }
 
     const getReportResource = async () => {
-        console.log("report id "+reportID);
-        const todosCollection = collection(firestore,'reports');
-        const todosQuery = query(todosCollection,where('report_id','==',reportID));
-        const querySnapshot = await getDocs(todosQuery);
-        console.log(querySnapshot.docs.toString());
-        var rId =  querySnapshot.docs[0].get("resource_id");
-        //setreportResourceId(rId);
-        // querySnapshot.forEach((snapshot) => {
-        //      setreportResourceId(snapshot.data().resource_id);
-        //      console.log("report resource id done "+snapshot.data().resource_id);
-        //      console.log("report resource id done "+reportResourceId);
-        //
-        // })
-        console.log("got res id "+rId)
 
-        if(rId){
-            getReportBody(rId);
-        }else{
-            console.log("could not find the res id")
+        try{
+            var mainApp =   initializeApp({
+                apiKey: "AIzaSyCKb4AFXlNrrULmmfnwQgt4yjo2LqEniNY",
+                authDomain: "staht-connect-322113.firebaseapp.com",
+                projectId: "staht-connect-322113",
+                storageBucket: "staht-connect-322113.appspot.com",
+                messagingSenderId: "1062957635061",
+                appId: "1:1062957635061:web:ae189f34def46aa57d3cbc",
+                measurementId: "G-9389CBET47"
+            },"staht-connect-322113")
+            // initializeApp({
+            //     apiKey: "AIzaSyCKb4AFXlNrrULmmfnwQgt4yjo2LqEniNY",
+            //     authDomain: "staht-connect-322113.firebaseapp.com",
+            //     projectId: "staht-connect-322113",
+            //     storageBucket: "staht-connect-322113.appspot.com",
+            //     messagingSenderId: "1062957635061",
+            //     appId: "1:1062957635061:web:ae189f34def46aa57d3cbc",
+            //     measurementId: "G-9389CBET47"
+            // });
+
+
+
+            firestore = getFirestore(mainApp);
+            console.log("main firestore done")
+            console.log(mainApp.name)
+        }catch (e) {
+            console.log("Exception on main firebase");
+            console.log(e);
+            firestore = getFirestore();
+            console.log("main firebase");
+
         }
+
+
+        console.log("report id "+reportID);
+        try {
+            const todosCollection = collection(firestore,'reports');
+            const todosQuery = query(todosCollection,where('report_id','==',reportID));
+            const querySnapshot = await getDocs(todosQuery);
+            if(true){
+              //  console.log(querySnapshot.docs.length.toString());
+                  var rId =  querySnapshot.docs[0].resource_id;
+                //setreportResourceId(rId);
+                querySnapshot.forEach((snapshot) => {
+                     setreportResourceId(snapshot.data().resource_id);
+                     console.log("report resource id done "+snapshot.data().resource_id);
+                     getReportBody(snapshot.data().resource_id);
+
+                })
+                // console.log("got res id "+rId)
+
+
+            }
+        }catch (e) {
+            console.log("query error")
+            console.log(e)
+        }
+
+
 
 
 
@@ -155,7 +169,7 @@ export default function Report() {
             const todosCollection = doc(firestoreCustomer,'reports/'+reportID);
             var dd = await  getDoc(todosCollection);
             console.log("show data")
-            console.log(dd.data())
+           // console.log(dd.data())
 
             // const todosCollection = doc(firestoreCustomer,'reports/' + reportID);
             // var dd = await  getDoc(todosCollection);
@@ -169,6 +183,8 @@ export default function Report() {
             // // console.log(result.length);
             //
             setReport(dd.data());
+            console.log("after set report")
+            console.log(downloadedReprot)
             console.log("wrote")
             const reportItemCollection = collection(firestoreCustomer,'reports/' + reportID+"/items");
             const todosQuery = query(reportItemCollection);
@@ -185,7 +201,9 @@ export default function Report() {
 
             setItems(result);
 
-            // console.log("report body")
+             console.log("report items")
+             console.log(result.length)
+             console.log(items.length)
             // //console.log(downloadedReprot)
             // console.log(dd.data())
         }catch (e) {
