@@ -8,6 +8,8 @@ import Modal from '@mui/material/Modal'
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import SingleTestForReport from "./singleTestForReport";
+import List from "@mui/material/List";
 const style = {
     position: 'absolute',
     top: '50%',
@@ -20,38 +22,41 @@ const style = {
     p: 0,
 };
 
-export default function QuiltedImageList({attachmentsArray=[]}) {
+export default function AllTestGrid({reportId,customerFirestore}) {
     const [open, setOpen] = React.useState(false);
+    const [items, setItem] = React.useState([]);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
+    const getReportItems = async () =>{
+        const reportItemCollection = collection(customerFirestore,'reports/' + reportId+"/items");
+        const todosQuery = query(reportItemCollection);
 
+        const querySnapshot = await getDocs(todosQuery);
+
+        // map through todos adding them to an array
+
+        var result= [];
+        querySnapshot.forEach((snapshot) => {
+            result.push(snapshot);
+            console.log("one added")
+
+        });
+        setItem(result);
+    }
+
+
+    useEffect( () => {
+
+      //  getReportItems();
+
+        setTimeout( () => {
+            //  setLoading(false);
+        },2000)
+
+    },[]);
     return (
-        <ImageList sx={{ width: 582, }}  rowHeight={164}   variant="quilted"
-                   cols={4}>
-            {attachmentsArray.map((item) => (
-                <ImageListItem key={item.link} onClick={handleOpen}>
-                    <img
-                        src={`${item.link}?w=164&h=164&fit=crop&auto=format`}
-                        srcSet={`${item.link}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-
-                        loading="lazy"
-                    />
-                    <Modal
-                        open={open}
-                        onClose={handleClose}
-
-                    >
-                        <img
-                            src={`${item.link}`}
-                            srcSet={`${item.link}`}
-
-
-                        />
-                    </Modal>
-                </ImageListItem>
-            ))}
-        </ImageList>
+       <label>{items.length}</label>
 
 
     );

@@ -40,6 +40,7 @@ import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import QuiltedImageList from "./photoGallary";
 import SingleTestForReport from "./singleTestForReport";
+import AllTestGrid from "./allTestGrid";
 export default function Report() {
     const router = useRouter()
     var reportID = router.query.id;
@@ -47,8 +48,9 @@ export default function Report() {
     var firestore;
     var firestoreCustomer;
     const [downloadedReprot,setReport] = useState({});
-    const [reportResourceId,setreportResourceId] = useState({});
+    const [reportResourceId,setreportResourceId] = useState("");
     const [items,setItems] = useState([]);
+    const [customerFirestoreInitiated,setCustomerFirestoreInitiated] = useState(false);
 
 
 
@@ -95,14 +97,21 @@ export default function Report() {
             const querySnapshot = await getDocs(todosQuery);
             if(true){
               //  console.log(querySnapshot.docs.length.toString());
-                  var rId =  querySnapshot.docs[0].resource_id;
+                  var rId ;
+                  var doneOnce = false;
                 //setreportResourceId(rId);
                 querySnapshot.forEach((snapshot) => {
                      setreportResourceId(snapshot.data().resource_id);
                      console.log("report resource id done "+snapshot.data().resource_id);
-                     getReportBody(snapshot.data().resource_id);
+                     rId = snapshot.data().resource_id;
+                     if(doneOnce == false){
+                         getReportBody(snapshot.data().resource_id);
+
+                     }
+
 
                 })
+
                 // console.log("got res id "+rId)
 
 
@@ -118,6 +127,8 @@ export default function Report() {
 
     };
     const getReportBody = async (resID) => {
+        console.log("now download report body");
+        console.log(resID);
 
 
         try{
@@ -143,6 +154,7 @@ export default function Report() {
 
             console.log("create done")
             firestoreCustomer = getFirestore(app);
+            setCustomerFirestoreInitiated(true);
         }catch (e) {
             console.log("app list")
             console.log("ecxepppp")
@@ -198,13 +210,13 @@ export default function Report() {
                 result.push(snapshot);
 
             });
+            console.log("item count "+result.length.toString())
+           // return <label>{items.length}</label>
+           console.log("all ok, now set items "+result.length.toString());
 
             setItems(result);
-
-             console.log("report items")
-             console.log(result.length)
-             console.log(items.length)
-            // //console.log(downloadedReprot)
+            console.log(items.length.toString())
+            console.log(result.length.toString())
             // console.log(dd.data())
         }catch (e) {
             console.log("EXC");
@@ -218,6 +230,7 @@ export default function Report() {
     useEffect( () => {
 
            if(reportID) getReportResource();
+           if(reportResourceId) getReportBody(reportResourceId);
 
         setTimeout( () => {
             //  setLoading(false);
@@ -228,7 +241,8 @@ export default function Report() {
 
 
     if(reportID) {
-        return (
+
+        return    (
             <div className="container">
                 <Head>
                     <title>Staht Connect</title>
@@ -344,16 +358,20 @@ export default function Report() {
                             </Grid>
 
                         </Grid>
-
                         <List sx={{ width: '100%', bgcolor: 'background.paper', }}>
                             {items.map((value) => (
-                                <SingleTestForReport testBody={value} customerFirestore={firestoreCustomer} reportID={reportID} />
+                                <SingleTestForReport testBody={value.data()} customerFirestore={firestoreCustomer} reportID={reportID} />
 
 
 
 
                             ))}
                         </List>
+                        {/*<label>{customerFirestoreInitiated.toString()}</label>*/}
+                        {/*<AllTestGrid reportId={reportID} customerFirestore={firestoreCustomer}></AllTestGrid>*/}
+
+
+
 
                     </Paper>
                 </Box>

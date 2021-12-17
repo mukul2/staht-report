@@ -55,9 +55,13 @@ export default function SingleTestForReport({testBody}){
         </Box>);
 
     }
+    return  <label>testBody.data.name</label>
+
+
+
     return (<List>
         <Divider />
-        <h3 sx={{fontsize:20}}  className={styles.centertextPrimaryColor}>{testBody.data().data.name}</h3>
+        <h3 sx={{fontsize:20}}  className={styles.centertextPrimaryColor}>{testBody.data.name}</h3>
         <Divider />
         <Box
             sx={{
@@ -73,7 +77,7 @@ export default function SingleTestForReport({testBody}){
                 textAlign: 'center',
             }}
         >
-            {testBody.data.startedLoad==0?"Test Result Not Timed":(testBody.data().data.startedLoad>0?(testBody.data().data.didPassed==true?"Test Result Passed":"Test Result Failed"):"Test Result Failed")}
+            {testBody.data.startedLoad==0?"Test Result Not Timed":(testBody.data.startedLoad>0?(testBody.data.didPassed==true?"Test Result Passed":"Test Result Failed"):"Test Result Failed")}
         </Box>
 
 
@@ -83,7 +87,7 @@ export default function SingleTestForReport({testBody}){
             <CardMedia
                 component="img"
 
-                image={`data:image/jpeg;base64,${testBody.data().data.graphImage}`}
+                image={`data:image/jpeg;base64,${testBody.data.graphImage}`}
                 alt="Paella dish"
             />
             <CardContent>
@@ -94,7 +98,7 @@ export default function SingleTestForReport({testBody}){
         </Card>
         <List sx={{ paddingLeft:0,paddingRight:0}}>
 
-            {testDataTile("Test Title",testBody.data().data.name)}
+            {testDataTile("Test Title",testBody.data.name)}
 
 
 
@@ -105,37 +109,37 @@ export default function SingleTestForReport({testBody}){
             {/*<h5>{value.data.name}</h5>*/}
             {/*<h6 className={styles.primaryColortext}>Test Note</h6>*/}
             {/*<h5>{value.data.note}</h5>*/}
-            {testDataTile("Test Note",testBody.data().data.note)}
+            {testDataTile("Test Note",testBody.data.note)}
 
 
             <Divider/>
 
-            {testDataTile("Date & Time",convertDate(testBody.data().data.time))}
+            {testDataTile("Date & Time",convertDate(testBody.data.time))}
 
 
 
 
             <Divider/>
-            {testDataTile("Target Value",testBody.data().data.targetLoad.toString() +testBody.data().data.loadMode.toString() )}
+            {testDataTile("Target Value",testBody.data.targetLoad.toString() +testBody.data.loadMode.toString() )}
 
             <Divider/>
-            {testDataTile("Max Value",testBody.data().data.max.toString() +testBody.data().data.loadMode.toString()+" at "+convertmilisToMinute( testBody.data().data.maxAt) )}
+            {testDataTile("Max Value",testBody.data.max.toString() +testBody.data.loadMode.toString()+" at "+convertmilisToMinute( testBody.data.maxAt) )}
 
             <Divider/>
-            {testDataTile("Times Section Started",convertmilisToMinute( testBody.data().data.startedLoad)  )}
+            {testDataTile("Times Section Started",convertmilisToMinute( testBody.data.startedLoad)  )}
             <Divider/>
-            {testDataTile("Times Section Finished",convertmilisToMinute( testBody.data().data.endedLoad)  )}
+            {testDataTile("Times Section Finished",convertmilisToMinute( testBody.data.endedLoad)  )}
             <Divider/>
-            {testDataTile("Times Section Length",convertmilisToMinute( testBody.data().data.targetDuration*1000)  )}
+            {testDataTile("Times Section Length",convertmilisToMinute( testBody.data.targetDuration*1000)  )}
             <Divider/>
-            {testDataTile("Device SN", testBody.data().data.index2  )}
+            {testDataTile("Device SN", testBody.data.index2  )}
             <Divider/>
-            {testDataTile("Next Calibration Date",testBody.data().data.index6)}
-            <QuiltedImageList attachmentsArray= {testBody.data().attachment} />
+            {testDataTile("Next Calibration Date",testBody.data.index6)}
+            <QuiltedImageList attachmentsArray= {testBody.attachment} />
 
         </List>
 
-    </List>);
+    </List>)
 
 }
 
